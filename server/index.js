@@ -23,11 +23,19 @@ io.on("connection", (socket) => {
     pos: { x: 0, y: 0 },
   });
 
-  // forward the private message to the right recipient
+  // broadcast new player positions to other players
   socket.on("playerMoved", ({ pos }) => {
     socket.broadcast.emit("playerMoved", {
       playerID: socket.id,
       pos,
+    });
+  });
+
+  // broadcast new player positions to other players
+  socket.on("chatMessage", ({ msg }) => {
+    socket.broadcast.emit("chatMessage", {
+      msg,
+      playerID: socket.id,
     });
   });
 
