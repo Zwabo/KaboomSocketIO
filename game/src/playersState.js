@@ -15,13 +15,16 @@ function getPlayerObject(playerID) {
 // Add a remote player object component
 function addPlayerObject(remotePlayer) {
   const playerObj = add([
-    sprite("bean"),
+    sprite("hero", { anim: "idle" }),
     pos(center()),
+    area({ width: 12, height: 12, offset: vec2(0, 6) }),
     text("", {
-      size: 42,
-      transform: {
-        pos: vec2(0, -50),
-      },
+      size: 12,
+      transform: (i, ch) => ({
+        pos: vec2(0, -2),
+        scale: wave(1, 1.2, time() * 3 + i),
+        angle: wave(-9, 9, time() * 3 + i),
+      }),
     }),
   ]);
   playersObjects[remotePlayer.playerID] = playerObj;

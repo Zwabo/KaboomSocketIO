@@ -59,6 +59,9 @@ function emitChatMessage(msg) {
 function listenToChatMessages() {
   socket.on("chatMessage", ({ msg, playerID }) => {
     getPlayerObject(playerID).text = msg;
+    setTimeout(() => {
+      getPlayerObject(playerID).text = "";
+    }, 5000);
   });
 }
 

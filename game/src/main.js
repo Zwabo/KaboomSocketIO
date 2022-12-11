@@ -14,12 +14,14 @@ import {
   getLocalPlayer,
   setLocalPlayer,
 } from "./playersState.js";
+import { loadSprites } from "./levelUtils.js";
 
 initializeSocket();
-kaboom();
-
-loadSprite("bean", "sprites/bean.png");
-
+kaboom({
+  scale: 4,
+  clearColor: [0, 0, 0],
+});
+loadSprites(); // Load and process tileset
 registerMovementListeners();
 initializeChat(); // Chat logic + rendering + networking
 
@@ -30,8 +32,9 @@ socket.on("players", (remotePlayers) => {
     if (player.playerID === socket.id) {
       // Add player game object
       const localPlayer = add([
-        sprite("bean"),
-        // center() returns the center point vec2(width() / 2, height() / 2)
+        sprite("hero", { anim: "idle" }),
+        pos(center()),
+        area({ width: 12, height: 12, offset: vec2(0, 6) }),
         pos(center()),
       ]);
       if (getLocalPlayer()) {
@@ -64,15 +67,17 @@ socket.on("playerDisconnected", (playerID) => {
 
 function registerMovementListeners() {
   // Define player movement speed (pixels per second)
-  const SPEED = 320;
+  const SPEED = 120;
 
   onKeyDown("left", () => {
     getLocalPlayer().move(-SPEED, 0);
+    getLocalPlayer().flipX(true);
     localPlayerMoved();
   });
 
   onKeyDown("right", () => {
     getLocalPlayer().move(SPEED, 0);
+    getLocalPlayer().flipX(false);
     localPlayerMoved();
   });
 
@@ -85,6 +90,21 @@ function registerMovementListeners() {
     getLocalPlayer().move(0, SPEED);
     localPlayerMoved();
   });
+
+  onKeyPress(["left", "right", "up", "down"], () => {
+    getLocalPlayer().play("run");
+  });
+
+  onKeyRelease(["left", "right", "up", "down"], () => {
+    if (
+      !isKeyDown("left") &&
+      !isKeyDown("right") &&
+      !isKeyDown("up") &&
+      !isKeyDown("down")
+    ) {
+      getLocalPlayer().play("idle");
+    }
+  });
 }
 
 function localPlayerMoved() {
@@ -92,5 +112,3 @@ function localPlayerMoved() {
     pos: getLocalPlayer().pos,
   });
 }
-
-onClick(() => addKaboom(mousePos()));
